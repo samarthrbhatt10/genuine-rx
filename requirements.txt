@@ -1,0 +1,11 @@
+# Genuine RX — dependency index
+# See split files below; install only what your environment supports:
+#
+#   Core backend (Python 3.11+):
+#     pip install -r requirements-core.txt
+#
+#   RPA / Automation layer (Python 3.11 ONLY — rpaframework 28.x constraint):
+#     pip install -r requirements-rpa.txt
+#
+# Both files are pinned per 02_TECH_STACK.md.
+-r requirements-core.txt

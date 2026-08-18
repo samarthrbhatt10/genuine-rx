@@ -1,0 +1,26 @@
+# Genuine RX — Core backend dependencies (Python 3.11+, tested on 3.13)
+# Use: pip install -r requirements-core.txt
+# Excludes rpaframework and robotframework-browser — see requirements-rpa.txt (requires Python 3.11).
+
+# --- Robot Framework (core runner — no Python 3.11 constraint) ---
+robotframework>=7.1,<8.0
+
+
+# --- API / Backend ---
+fastapi>=0.110,<0.200
+uvicorn>=0.27,<0.30
+pydantic>=2.5,<3.0
+
+# --- Database ---
+psycopg[binary]>=3.1,<4.0
+alembic>=1.13,<2.0
+
+# --- OCR / Image Processing ---
+opencv-python-headless>=4.9.0
+pytesseract>=0.3.10
+rapidfuzz>=3.8.0
+redis>=5.0,<6.0
+
+# --- Notifications / Scheduling ---
+twilio>=9.0,<10.0
+apscheduler>=3.10,<4.0

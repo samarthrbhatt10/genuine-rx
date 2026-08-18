@@ -1,0 +1,2 @@
+# Genuine RX — dev dependencies
+pytest>=8.0,<9.0

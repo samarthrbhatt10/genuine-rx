@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.2 (Python 3.13.7 on win32)" generated="2026-08-05T16:00:05.225311" rpa="false" schemaversion="5">
+<suite id="s1" name="Regression" source="C:\Users\samarth10\.gemini\antigravity-ide\scratch\genuine-rx\rpa\suites\regression.robot">
+<kw name="Inject Test Salt Aliases" type="SETUP">
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.322069" level="INFO">${salt_table} = [SaltEntry(salt_id=1, canonical_name='Paracetamol', aliases=frozenset({'paracetamol tab', 'acetaminophen', 'pcm'})), SaltEntry(salt_id=2, canonical_name='Metformin', aliases=frozenset({'metformin hcl'...</msg>
+<var>${salt_table}</var>
+<arg>[__import__('matching_engine.types', fromlist=['SaltEntry']).SaltEntry(1, 'Paracetamol', frozenset({'pcm', 'acetaminophen', 'paracetamol tab'})), __import__('matching_engine.types', fromlist=['SaltEntry']).SaltEntry(2, 'Metformin', frozenset({'metformin hcl', 'metformin hydrochloride', 'mf 500'})), __import__('matching_engine.types', fromlist=['SaltEntry']).SaltEntry(3, 'Atorvastatin', frozenset({'atorvastatin calcium', 'atorva'})), __import__('matching_engine.types', fromlist=['SaltEntry']).SaltEntry(4, 'Glibenclamide', frozenset({'glyburide', 'glibenclamide 5'}))]</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.320384" elapsed="0.001793"/>
+</kw>
+<kw name="Inject Salt Aliases For Testing" owner="Parsing">
+<msg time="2026-08-05T16:00:05.323561" level="INFO">Injected 4 test salt aliases.</msg>
+<arg>${salt_table}</arg>
+<doc>Inject a pre-built salt table for unit/regression testing.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.322726" elapsed="0.000896"/>
+</kw>
+<doc>Builds an in-memory salt table for the regression suite
+so no database connection is needed.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.319107" elapsed="0.004736"/>
+</kw>
+<test id="s1-t1" name="Normalize Single Salts" line="14">
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.327699" level="INFO">${result} = [('Paracetamol', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.326739" elapsed="0.000988"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.328243" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.327806" elapsed="0.000529"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.328640" level="INFO">${name} = Paracetamol</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.328403" elapsed="0.000254"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.328979" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.328714" elapsed="0.000281"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.329053" elapsed="0.000439"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.330071" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.329671" elapsed="0.000442"/>
+</kw>
+<arg>Paracetamol 500mg</arg>
+<arg>Paracetamol</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.326098" elapsed="0.004058"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.332027" level="INFO">${result} = [('Paracetamol', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.331402" elapsed="0.000781"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.333642" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.332523" elapsed="0.001292"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.334493" level="INFO">${name} = Paracetamol</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.334166" elapsed="0.000350"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.335164" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.334767" elapsed="0.000420"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.335459" elapsed="0.000622"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.336502" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.336182" elapsed="0.000365"/>
+</kw>
+<arg>Paracetamol 500 mg</arg>
+<arg>Paracetamol</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.330824" elapsed="0.005768"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.337581" level="INFO">${result} = [('Paracetamol', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.337379" elapsed="0.000218"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.337868" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.337650" elapsed="0.000247"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.338337" level="INFO">${name} = Paracetamol</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.337956" elapsed="0.000397"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.338867" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.338525" elapsed="0.000357"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.339607" elapsed="0.000643"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.340796" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.340435" elapsed="0.000397"/>
+</kw>
+<arg>PCM 500mg</arg>
+<arg>Paracetamol</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.337163" elapsed="0.003706"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.341624" level="INFO">${result} = [('Paracetamol', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.341478" elapsed="0.000163"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.341873" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.341694" elapsed="0.000206"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.342111" level="INFO">${name} = Paracetamol</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.341957" elapsed="0.000169"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.342317" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.342179" elapsed="0.000152"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.342380" elapsed="0.000223"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.342924" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.342664" elapsed="0.000296"/>
+</kw>
+<arg>Acetaminophen 500mg</arg>
+<arg>Paracetamol</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.341313" elapsed="0.001683"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.343619" level="INFO">${result} = [('Metformin', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.343521" elapsed="0.000118"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.343867" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.343690" elapsed="0.000205"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.344099" level="INFO">${name} = Metformin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.343949" elapsed="0.000165"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.344308" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.344168" elapsed="0.000153"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.344370" elapsed="0.000205"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.344845" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.344632" elapsed="0.000253"/>
+</kw>
+<arg>Metformin 500mg</arg>
+<arg>Metformin</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.343371" elapsed="0.001554"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.346043" level="INFO">${result} = [('Metformin', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.345787" elapsed="0.000365"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.346881" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.346328" elapsed="0.000599"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.347520" level="INFO">${name} = Metformin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.347053" elapsed="0.000484"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.348295" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.347876" elapsed="0.000444"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.348441" elapsed="0.000451"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.349490" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.348997" elapsed="0.000651"/>
+</kw>
+<arg>Metformin HCl 500mg</arg>
+<arg>Metformin</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.345540" elapsed="0.004402"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.351155" level="INFO">${result} = [('Metformin', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.350984" elapsed="0.000193"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.351826" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.351249" elapsed="0.000647"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.352344" level="INFO">${name} = Metformin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.352082" elapsed="0.000278"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.352560" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.352415" elapsed="0.000187"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.352675" elapsed="0.000353"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.353534" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.353189" elapsed="0.000377"/>
+</kw>
+<arg>Metformin Hydrochloride 500 mg</arg>
+<arg>Metformin</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.350689" elapsed="0.002915"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.357798" level="INFO">${result} = [('Atorvastatin', 10.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.357666" elapsed="0.000151"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.358128" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.357875" elapsed="0.000314"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.358447" level="INFO">${name} = Atorvastatin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.358295" elapsed="0.000167"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.358660" level="INFO">${mg} = 10.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.358516" elapsed="0.000158"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.358730" elapsed="0.000208"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.359181" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.358997" elapsed="0.000214"/>
+</kw>
+<arg>Atorvastatin 10mg</arg>
+<arg>Atorvastatin</arg>
+<arg>10.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.354452" elapsed="0.004798"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.359987" level="INFO">${result} = [('Atorvastatin', 10.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.359884" elapsed="0.000158"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.360394" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.360094" elapsed="0.000325"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.360858" level="INFO">${name} = Atorvastatin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.360514" elapsed="0.000360"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.361295" level="INFO">${mg} = 10.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.361055" elapsed="0.000257"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.361483" elapsed="0.000577"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.362476" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.362122" elapsed="0.000426"/>
+</kw>
+<arg>Atorvastatin Calcium 10 mg</arg>
+<arg>Atorvastatin</arg>
+<arg>10.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.359631" elapsed="0.002954"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.363671" level="INFO">${result} = [('Glibenclamide', 5.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.363146" elapsed="0.000543"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.364114" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.363836" elapsed="0.000305"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.364392" level="INFO">${name} = Glibenclamide</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.364197" elapsed="0.000210"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.364595" level="INFO">${mg} = 5.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.364456" elapsed="0.000154"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.364669" elapsed="0.000321"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.365278" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.365094" elapsed="0.000215"/>
+</kw>
+<arg>Glibenclamide 5mg</arg>
+<arg>Glibenclamide</arg>
+<arg>5.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.362950" elapsed="0.002395"/>
+</kw>
+<doc>Tests basic single-salt strings with canonical names and common aliases.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.323956" elapsed="0.041457"/>
+</test>
+<test id="s1-t2" name="Normalize Unit Conversions" line="29">
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.367312" level="INFO">${result} = [('Atorvastatin', 10.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.366900" elapsed="0.000496"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.367977" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.367513" elapsed="0.000508"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.368628" level="INFO">${name} = Atorvastatin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.368250" elapsed="0.000422"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.369075" level="INFO">${mg} = 10.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.368869" elapsed="0.000234"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.369220" elapsed="0.000499"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.370340" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.369958" elapsed="0.000454"/>
+</kw>
+<arg>Atorvastatin 0.01g</arg>
+<arg>Atorvastatin</arg>
+<arg>10.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.366529" elapsed="0.003995"/>
+</kw>
+<kw name="Salt String Should Normalize To">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.371803" level="INFO">${result} = [('Metformin', 500.0)]</msg>
+<var>${result}</var>
+<arg>${raw}</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.371656" elapsed="0.000165"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.372292" level="INFO">Length is 1.</msg>
+<arg>${result}</arg>
+<arg>msg=Normalize Salt String returned empty for: "${raw}"</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.371905" elapsed="0.000489"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.372733" level="INFO">${name} = Metformin</msg>
+<var>${name}</var>
+<arg>${result}[0][0]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.372510" elapsed="0.000237"/>
+</kw>
+<kw name="Set Variable" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.373187" level="INFO">${mg} = 500.0</msg>
+<var>${mg}</var>
+<arg>${result}[0][1]</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.372854" elapsed="0.000350"/>
+</kw>
+<kw name="Should Be Equal" owner="BuiltIn">
+<arg>${name}</arg>
+<arg>${expected_name}</arg>
+<arg>msg=Expected canonical name '${expected_name}' but got '${name}' for input: "${raw}"</arg>
+<doc>Fails if the given objects are unequal.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.373259" elapsed="0.000213"/>
+</kw>
+<kw name="Should Be Equal As Numbers" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.373796" level="INFO">Argument types are:
+&lt;class 'float'&gt;
+&lt;class 'str'&gt;</msg>
+<arg>${mg}</arg>
+<arg>${expected_mg}</arg>
+<arg>msg=Expected strength ${expected_mg} mg but got ${mg} for input: "${raw}"</arg>
+<doc>Fails if objects are unequal after converting them to real numbers.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.373528" elapsed="0.000371"/>
+</kw>
+<arg>Metformin 0.5g</arg>
+<arg>Metformin</arg>
+<arg>500.0</arg>
+<doc>Normalizes ${raw} and asserts the first result matches expected values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.371380" elapsed="0.002590"/>
+</kw>
+<doc>Verifies g and mcg conversions produce correct mg values.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.365574" elapsed="0.008569"/>
+</test>
+<test id="s1-t3" name="Normalize Combination Salts" line="35">
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.375123" level="INFO">${result} = [('Metformin', 500.0), ('Glibenclamide', 5.0)]</msg>
+<var>${result}</var>
+<arg>Metformin 500mg + Glibenclamide 5mg</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.374879" elapsed="0.000274"/>
+</kw>
+<kw name="Length Should Be" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.375682" level="INFO">Length is 2.</msg>
+<arg>${result}</arg>
+<arg>2</arg>
+<doc>Verifies that the length of the given item is correct.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.375433" elapsed="0.000348"/>
+</kw>
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.377395" level="INFO">${names} = ['Metformin', 'Glibenclamide']</msg>
+<var>${names}</var>
+<arg>[r[0] for r in ${result}]</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.375992" elapsed="0.001421"/>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${names}</arg>
+<arg>Metformin</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.377611" elapsed="0.000363"/>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${names}</arg>
+<arg>Glibenclamide</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.378077" elapsed="0.000252"/>
+</kw>
+<kw name="Normalize Salt String" owner="Parsing">
+<msg time="2026-08-05T16:00:05.378522" level="INFO">${result2} = [('Paracetamol', 500.0), ('Metformin', 500.0)]</msg>
+<var>${result2}</var>
+<arg>Paracetamol 500mg / Metformin 500mg</arg>
+<doc>Parse a raw salt string into a list of (canonical_name, strength_mg) tuples.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.378434" elapsed="0.000104"/>
+</kw>
+<kw name="Length Should Be" owner="BuiltIn">
+<msg time="2026-08-05T16:00:05.379107" level="INFO">Length is 2.</msg>
+<arg>${result2}</arg>
+<arg>2</arg>
+<doc>Verifies that the length of the given item is correct.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.378612" elapsed="0.000589"/>
+</kw>
+<doc>Verifies multi-salt strings produce the correct number of results.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.374483" elapsed="0.004893"/>
+</test>
+<doc>Regression suite — fixed input/output table for Normalize Salt String.
+PASS means: every known raw salt string produces the exact expected
+(canonical_name, strength_mg) output.
+No network calls, no database required. Run on every commit.</doc>
+<status status="PASS" start="2026-08-05T16:00:05.230558" elapsed="0.149686"/>
+</suite>
+<statistics>
+<total>
+<stat pass="3" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat name="Regression" id="s1" pass="3" fail="0" skip="0">Regression</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
