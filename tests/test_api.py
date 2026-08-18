@@ -23,7 +23,7 @@ client = TestClient(app)
 
 def get_test_db():
     dsn = db_url.replace("postgresql+psycopg://", "postgresql://")
-    conn = psycopg.connect(dsn, row_factory=dict_row)
+    conn = psycopg.connect(dsn, row_factory=dict_row, autocommit=True)
     try:
         yield conn
     finally:
@@ -98,22 +98,39 @@ class TestAPIContract:
         assert response.status_code == 422  # Pydantic validation error
 
     def test_tracked_medicines_flow(self):
-        # 1. Add tracked medicine
-        # User ID 2 is created by seed.py
+        # 0. Find Crocin medicine_id
+        resolve_res = client.post("/api/v1/resolve-medicine", json={
+            "raw_text": "Crocin",
+            "source": "typed"
+        })
+        assert resolve_res.status_code == 200
+        resolve_data = resolve_res.json()
+        assert resolve_data["matched"] is True
+        med_id = resolve_data["medicine_id"]
+
+        # 1. Create or get user
+        user_res = client.post("/api/v1/users", json={
+            "phone": "+919988776655",
+            "consent_whatsapp": True
+        })
+        assert user_res.status_code == 201
+        user_id = user_res.json()["user_id"]
+
+        # 2. Add tracked medicine
         response = client.post("/api/v1/tracked-medicines", json={
-            "user_id": 2,
-            "medicine_id": 16,
+            "user_id": user_id,
+            "medicine_id": med_id,
             "profile_label": "Self"
         })
         assert response.status_code == 201
         
-        # 2. Get tracked medicines
-        response2 = client.get("/api/v1/users/2/tracked-medicines")
+        # 3. Get tracked medicines
+        response2 = client.get(f"/api/v1/users/{user_id}/tracked-medicines")
         assert response2.status_code == 200
         items = response2.json()
         assert len(items) > 0
         
         # Check properties
-        crocin_item = next(i for i in items if i["medicine_id"] == 16)
-        assert crocin_item["brand_name"] == "Crocin"
+        crocin_item = next(i for i in items if i["medicine_id"] == med_id)
+        assert "Crocin" in crocin_item["brand_name"]
         assert "latest_price" in crocin_item

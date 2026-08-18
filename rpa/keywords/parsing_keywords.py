@@ -264,7 +264,7 @@ class ParsingKeywords:
         published, not on every daily run.
         """
         try:
-            from RPA.PDF import PDF  # noqa: PLC0415
+            from RPA.PDF import PDF  # noqa: PLC0415  # type: ignore[import-not-found,import-untyped]
         except ImportError as exc:
             raise RuntimeError(
                 "rpaframework is not installed. "

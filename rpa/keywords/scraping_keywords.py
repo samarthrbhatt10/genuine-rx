@@ -61,7 +61,7 @@ class ScrapingKeywords:
         a suite run.  The smoke suite calls this to validate connectivity.
         """
         try:
-            from Browser import Browser  # noqa: PLC0415  (lazy import — requires 3.11 venv)
+            from Browser import Browser  # noqa: PLC0415  # type: ignore[import-not-found,import-untyped]
         except ImportError as exc:
             raise RuntimeError(
                 "robotframework-browser is not installed. "
