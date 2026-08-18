@@ -96,35 +96,49 @@ MEDICINES = [
 
 # Latest price per brand
 LATEST_PRICES = {
-    "Crocin":                      ("primary_pharmacy", Decimal("30.00")),
-    "Calpol":                      ("primary_pharmacy", Decimal("29.00")),
-    "Metacin":                     ("primary_pharmacy", Decimal("18.50")),
-    "Pacimol":                     ("primary_pharmacy", Decimal("16.00")),
-    "Paracetamol (Jan Aushadhi)":  ("jan_aushadhi_pdf", Decimal("3.50")),
-    "Dolo 650":                    ("primary_pharmacy", Decimal("36.00")),
-    "Paracetamol 650 (JA)":        ("jan_aushadhi_pdf", Decimal("4.20")),
-    "Brufen":                      ("primary_pharmacy", Decimal("25.00")),
-    "Combiflam":                   ("primary_pharmacy", Decimal("38.00")),
-    "Advil":                       ("primary_pharmacy", Decimal("42.00")),
-    "Ibuprofen (Jan Aushadhi)":    ("jan_aushadhi_pdf", Decimal("5.00")),
-    "Glycomet":                    ("primary_pharmacy", Decimal("40.00")),
-    "Gluconorm":                   ("primary_pharmacy", Decimal("38.00")),
-    "Walaphage":                   ("primary_pharmacy", Decimal("35.50")),
-    "Obimet":                      ("primary_pharmacy", Decimal("33.00")),
-    "Metformin (Jan Aushadhi)":    ("jan_aushadhi_pdf", Decimal("5.50")),
-    "Atorva":                      ("primary_pharmacy", Decimal("55.00")),
-    "Storvas":                     ("primary_pharmacy", Decimal("58.00")),
-    "Tonact":                      ("primary_pharmacy", Decimal("52.00")),
-    "Lipikind":                    ("primary_pharmacy", Decimal("49.00")),
-    "Atorvastatin (Jan Aushadhi)": ("jan_aushadhi_pdf", Decimal("8.00")),
-    "Pan 40":                      ("primary_pharmacy", Decimal("45.00")),
-    "Pantodac":                    ("primary_pharmacy", Decimal("42.00")),
-    "Pantop":                      ("primary_pharmacy", Decimal("40.00")),
-    "Pantoprazole (Jan Aushadhi)": ("jan_aushadhi_pdf", Decimal("6.50")),
-    "Alerid":                      ("primary_pharmacy", Decimal("22.00")),
-    "Cetzine":                     ("primary_pharmacy", Decimal("20.00")),
-    "CTZ":                         ("primary_pharmacy", Decimal("18.00")),
-    "Cetirizine (Jan Aushadhi)":   ("jan_aushadhi_pdf", Decimal("3.00")),
+    # --- Paracetamol 500 mg (10's strip) ---
+    # Branded MRPs from 1mg/Netmeds; JA price verified on UMANG portal screenshot
+    "Crocin":                      ("primary_pharmacy", Decimal("18.00")),
+    "Calpol":                      ("primary_pharmacy", Decimal("16.50")),
+    "Metacin":                     ("primary_pharmacy", Decimal("12.00")),
+    "Pacimol":                     ("primary_pharmacy", Decimal("11.50")),
+    "Paracetamol (Jan Aushadhi)":  ("jan_aushadhi_pdf", Decimal("6.56")),   # UMANG: ₹6.56 / 10 tabs
+
+    # --- Paracetamol 650 mg (15 tabs strip) ---
+    "Dolo 650":                    ("primary_pharmacy", Decimal("34.00")),
+    "Paracetamol 650 (JA)":        ("jan_aushadhi_pdf", Decimal("14.07")),  # UMANG: ₹14.07 / 15 tabs
+
+    # --- Ibuprofen 400 mg (10's strip) ---
+    "Brufen":                      ("primary_pharmacy", Decimal("19.50")),
+    "Combiflam":                   ("primary_pharmacy", Decimal("24.00")),
+    "Advil":                       ("primary_pharmacy", Decimal("35.00")),
+    "Ibuprofen (Jan Aushadhi)":    ("jan_aushadhi_pdf", Decimal("8.25")),   # UMANG: ₹8.25 / 10 tabs
+
+    # --- Metformin 500 mg (10's strip) ---
+    "Glycomet":                    ("primary_pharmacy", Decimal("28.50")),
+    "Gluconorm":                   ("primary_pharmacy", Decimal("26.00")),
+    "Walaphage":                   ("primary_pharmacy", Decimal("22.00")),
+    "Obimet":                      ("primary_pharmacy", Decimal("20.00")),
+    "Metformin (Jan Aushadhi)":    ("jan_aushadhi_pdf", Decimal("6.74")),   # UMANG: ₹6.74 / 10 tabs
+
+    # --- Atorvastatin 10 mg (10's strip) ---
+    "Atorva":                      ("primary_pharmacy", Decimal("72.00")),
+    "Storvas":                     ("primary_pharmacy", Decimal("68.00")),
+    "Tonact":                      ("primary_pharmacy", Decimal("62.00")),
+    "Lipikind":                    ("primary_pharmacy", Decimal("52.00")),
+    "Atorvastatin (Jan Aushadhi)": ("jan_aushadhi_pdf", Decimal("10.44")), # UMANG: ₹10.44 / 10 tabs
+
+    # --- Pantoprazole 40 mg (10's strip) ---
+    "Pan 40":                      ("primary_pharmacy", Decimal("54.00")),
+    "Pantodac":                    ("primary_pharmacy", Decimal("48.00")),
+    "Pantop":                      ("primary_pharmacy", Decimal("42.00")),
+    "Pantoprazole (Jan Aushadhi)": ("jan_aushadhi_pdf", Decimal("8.82")),  # UMANG: ₹8.82 / 10 tabs
+
+    # --- Cetirizine 10 mg (10's strip) ---
+    "Alerid":                      ("primary_pharmacy", Decimal("21.00")),
+    "Cetzine":                     ("primary_pharmacy", Decimal("19.00")),
+    "CTZ":                         ("primary_pharmacy", Decimal("16.00")),
+    "Cetirizine (Jan Aushadhi)":   ("jan_aushadhi_pdf", Decimal("3.65")),  # UMANG: ₹3.65 / 10 tabs
 }
 
 # Price history offsets: (days_ago, pct_change_from_latest)

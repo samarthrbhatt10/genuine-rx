@@ -25,11 +25,11 @@ with psycopg.connect(dsn, autocommit=True, row_factory=dict_row) as conn:
     """)
     print("Removed duplicate price_history rows")
 
-    # Remove old medicines (ids 1-15 from first seed run)
-    conn.execute("DELETE FROM tracked_medicines WHERE medicine_id <= 15")
-    conn.execute("DELETE FROM medicine_salts WHERE medicine_id <= 15")
-    conn.execute("DELETE FROM price_history WHERE medicine_id <= 15")
-    conn.execute("DELETE FROM medicines WHERE medicine_id <= 15")
+    # Remove old medicines (ids <= 131 from previous seed runs)
+    conn.execute("DELETE FROM tracked_medicines WHERE medicine_id <= 131")
+    conn.execute("DELETE FROM medicine_salts WHERE medicine_id <= 131")
+    conn.execute("DELETE FROM price_history WHERE medicine_id <= 131")
+    conn.execute("DELETE FROM medicines WHERE medicine_id <= 131")
     print("Removed old medicines 1-15")
 
     # Re-seed tracked medicines for fresh users
