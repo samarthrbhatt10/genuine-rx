@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.2 (Python 3.13.7 on win32)" generated="2026-08-19T01:57:54.454668" rpa="false" schemaversion="5">
+<suite id="s1" name="Test Umang" source="C:\Users\samarth10\.gemini\antigravity-ide\scratch\genuine-rx\rpa\tests\test_umang.robot">
+<kw name="Open Pharmacy Source" owner="scraping_keywords" type="SETUP">
+<msg time="2026-08-19T01:57:54.551874" level="FAIL">robotframework-browser is not installed. Install it in the Python 3.11 venv with `pip install -r requirements-rpa.txt` then run `rfbrowser init`.</msg>
+<arg>${PRIMARY_PHARMACY_URL}</arg>
+<doc>Launch a Browser Library session, set a realistic user-agent,
+and wait until network activity is idle.</doc>
+<status status="FAIL" start="2026-08-19T01:57:54.547447" elapsed="0.006899">robotframework-browser is not installed. Install it in the Python 3.11 venv with `pip install -r requirements-rpa.txt` then run `rfbrowser init`.</status>
+</kw>
+<test id="s1-t1" name="Verify UMANG Search and Extraction for Paracetamol" line="12">
+<doc>Searches for Paracetamol on UMANG and verifies the first result returns Name, Size, and Price.</doc>
+<tag>smoke</tag>
+<tag>umang</tag>
+<status status="FAIL" start="2026-08-19T01:57:54.554675" elapsed="0.001402">Parent suite setup failed:
+robotframework-browser is not installed. Install it in the Python 3.11 venv with `pip install -r requirements-rpa.txt` then run `rfbrowser init`.</status>
+</test>
+<doc>Smoke tests for the UMANG Jan Aushadhi RPA scraping flow.
+These tests ensure we can successfully reach the official UMANG PMBJP portal,
+perform a search, and extract structured medicine prices using CSS selectors.</doc>
+<status status="FAIL" start="2026-08-19T01:57:54.457659" elapsed="0.099072">Suite setup failed:
+robotframework-browser is not installed. Install it in the Python 3.11 venv with `pip install -r requirements-rpa.txt` then run `rfbrowser init`.</status>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="1" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="0" fail="1" skip="0">smoke</stat>
+<stat pass="0" fail="1" skip="0">umang</stat>
+</tag>
+<suite>
+<stat name="Test Umang" id="s1" pass="0" fail="1" skip="0">Test Umang</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

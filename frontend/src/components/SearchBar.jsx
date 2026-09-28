@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Search, Camera, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
 
 export default function SearchBar({ onResolve }) {
@@ -6,6 +6,7 @@ export default function SearchBar({ onResolve }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [candidates, setCandidates] = useState(null) // for low-confidence fallback
+  const fileInputRef = useRef(null)
 
   const handleSearch = async (text, source = 'typed') => {
     if (!text.trim()) return
@@ -47,12 +48,51 @@ export default function SearchBar({ onResolve }) {
     }
   }
 
-  const simulateOCR = () => {
-    // In a real app, this would open the camera or file picker and pass the image to an OCR endpoint
-    // For demo purposes, we'll simulate an OCR read that is slightly misspelled to trigger the confidence check or direct match
-    const demoOcrText = "Croc"
-    setQuery(demoOcrText)
-    handleSearch(demoOcrText, 'ocr')
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    setIsLoading(true)
+    setError(null)
+    setCandidates(null)
+    setQuery(`Scanning ${file.name}...`)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/resolve-image', {
+        method: 'POST',
+        body: formData
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to process image')
+      }
+      
+      setQuery(data.brand_name || 'Found medicine')
+      
+      if (!data.matched) {
+        setError('No medicine found in this image. Please try typing the name.')
+        return
+      }
+
+      if (data.needs_confirmation) {
+        setCandidates(data.candidates)
+      } else {
+        onResolve(data)
+      }
+      
+    } catch (err) {
+      setError(err.message)
+      setQuery('')
+    } finally {
+      setIsLoading(false)
+      // Reset input so the same file can be uploaded again if needed
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
   return (
@@ -70,10 +110,18 @@ export default function SearchBar({ onResolve }) {
           className="flex-1 bg-transparent border-none outline-none text-lg text-white px-2 py-4 placeholder-gray-500"
         />
         
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          className="hidden"
+        />
         <button 
-          onClick={simulateOCR}
-          title="Upload Prescription (Demo OCR)"
-          className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex items-center justify-center group relative"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isLoading}
+          title="Upload Prescription (OCR)"
+          className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex items-center justify-center group relative disabled:opacity-50"
         >
           <Camera className="w-6 h-6" />
           <span className="absolute -top-10 scale-0 group-hover:scale-100 transition-all bg-gray-800 text-xs px-2 py-1 rounded whitespace-nowrap">

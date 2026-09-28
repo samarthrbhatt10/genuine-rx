@@ -20,7 +20,7 @@ ${E2E_SAMPLE_IMAGE}        %{GENUINE_RX_E2E_IMAGE_PATH=data/sample_prescription.
 # Expected medicine name the OCR should resolve to (substring match)
 ${E2E_EXPECTED_MEDICINE}   Paracetamol
 # medicine_id in the seeded database that corresponds to the sample image
-${E2E_MEDICINE_ID}         16
+${E2E_MEDICINE_ID}         132
 
 
 *** Test Cases ***

@@ -4,7 +4,7 @@ FastAPI Routes implementing 04_API_CONTRACT.md.
 from decimal import Decimal
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from psycopg import Connection
 
 from matching_engine import find_substitutes
@@ -15,6 +15,9 @@ from matching_engine.types import (
     SaltRequirement,
 )
 from ocr_resolver import match_medicine_text
+from ocr_resolver.pipeline import resolve_prescription_image
+import tempfile
+import os
 
 from .database import get_db
 from .models import (
@@ -95,6 +98,54 @@ def resolve_medicine(req: ResolveMedicineRequest, conn: DbConn):
         needs_confirmation=result.needs_confirmation,
         candidates=candidates
     )
+
+
+@router.post("/resolve-image", response_model=ResolveMedicineResponse)
+async def resolve_image(file: UploadFile = File(...), conn: DbConn = None):
+    """
+    Receives an image (prescription or medicine strip), runs OCR, 
+    and resolves to a specific medicine record.
+    """
+    # 1. Save uploaded file to temp disk
+    fd, temp_path = tempfile.mkstemp(suffix=".jpg")
+    try:
+        content = await file.read()
+        with os.fdopen(fd, "wb") as f:
+            f.write(content)
+            
+        # 2. Build catalog
+        catalog = {}
+        meds = conn.execute("SELECT medicine_id, brand_name FROM medicines").fetchall()
+        for m in meds:
+            catalog[m["brand_name"].lower()] = {
+                "medicine_id": m["medicine_id"],
+                "brand_name": m["brand_name"]
+            }
+            
+        # 3. Call OCR Pipeline
+        result = resolve_prescription_image(temp_path, catalog)
+        
+        candidates = None
+        if result.candidates:
+            candidates = [
+                CandidateResponse(
+                    medicine_id=c["medicine_id"],
+                    brand_name=c["brand_name"],
+                    confidence=c["confidence"]
+                )
+                for c in result.candidates
+            ]
+            
+        return ResolveMedicineResponse(
+            matched=result.matched,
+            medicine_id=result.medicine_id,
+            brand_name=result.brand_name,
+            confidence=result.confidence,
+            needs_confirmation=result.needs_confirmation,
+            candidates=candidates
+        )
+    finally:
+        os.remove(temp_path)
 
 
 @router.get("/medicines/{medicine_id}/substitutes", response_model=SubstitutesResponse)
