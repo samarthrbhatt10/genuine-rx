@@ -124,6 +124,22 @@ Located in [`rpa/`](rpa/):
   - `regression.robot`: Complex combination drug substitution verification.
   - `data_sanity.robot`: Database constraint, orphan key, and negative price checks.
   - `end_to_end.robot`: Full user journey execution from image ingestion to savings calculation.
+  - `price_drop_alert.robot`: Email alert bot — detects price drops and Jan Aushadhi alternatives, emails users once per event (see below).
+
+#### 📧 Price-Drop & Jan Aushadhi Email Alert Bot
+Code: [`rpa/alerts/`](rpa/alerts/) · Suite: [`price_drop_alert.robot`](rpa/suites/price_drop_alert.robot)
+
+Emails each user one digest when a tracked medicine's price drops, or a cheaper Jan Aushadhi medicine with the *identical salt + strength* exists. `alert_log` guarantees each alert is sent only once; high-risk (caution-list) salts get a "consult your doctor" warning. It also runs as step 5 of the nightly `scheduler_entry.py` pipeline.
+
+```bash
+alembic upgrade head                                   # adds users.email + alert_log (the bot also self-creates them)
+python -m rpa.alerts.price_alert_bot --reset           # demo: forget sent alerts
+python -m rpa.alerts.price_alert_bot --simulate-drop Crocin --pct 20   # fake a scraper finding a cheaper price
+robot -d rpa/logs/alerts rpa/suites/price_drop_alert.robot
+```
+- **Zero-config demo mode:** with no SMTP settings, emails are saved as HTML in `rpa/outbox/` — open in a browser.
+- **Real email (Gmail):** set `GENUINE_RX_SMTP_USER`, `GENUINE_RX_SMTP_PASSWORD` (a Google *App Password*) and `GENUINE_RX_ALERT_TO_EMAIL` (your inbox) in `.env`, then verify with `python -m rpa.alerts.price_alert_bot --test-email you@gmail.com`.
+- Per-user addresses: `PUT /api/v1/users/{id}/email` or `--set-email USER_ID EMAIL`.
 
 ### 4. Safety & Caution Protocol
 - Built-in clinical safety filter identifies medications with narrow therapeutic indices (e.g., *Warfarin*, *Levothyroxine*, *Carbamazepine*, *Digoxin*, *Theophylline*).

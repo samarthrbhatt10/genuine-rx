@@ -30,6 +30,7 @@ from .models import (
     SubstitutesResponse,
     TrackedMedicineItem,
     TrackedMedicineRequest,
+    UserEmailRequest,
     UserRequest,
 )
 
@@ -355,3 +356,15 @@ def create_user(req: UserRequest, conn: DbConn):
         ).fetchone()
         
     return {"user_id": res["user_id"], "message": "User created"}
+
+
+@router.put("/users/{user_id}/email")
+def set_user_email(user_id: int, req: UserEmailRequest, conn: DbConn):
+    """
+    Set the email address used for price-drop / Jan Aushadhi alerts.
+    """
+    conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT")  # no-op once migration 0002 is applied
+    cur = conn.execute("UPDATE users SET email = %s WHERE user_id = %s", (req.email, user_id))
+    if cur.rowcount == 0:
+        raise_not_found(f"User {user_id} not found")
+    return {"user_id": user_id, "email": req.email, "message": "Email saved"}
