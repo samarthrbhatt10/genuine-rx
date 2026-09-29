@@ -39,6 +39,18 @@ class UserRequest(BaseModel):
         return v
 
 
+class UserEmailRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        v = v.strip()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Must be a valid email address")
+        return v
+
+
 # ---- Responses ----
 
 class CandidateResponse(BaseModel):

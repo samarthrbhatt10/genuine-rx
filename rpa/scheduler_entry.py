@@ -9,6 +9,7 @@ The scheduler runs the following pipeline daily (default: 02:30 IST / 21:00 UTC)
   2. Full scrape  — calls Scrape Medicine Page for each tracked medicine URL.
   3. Writes rows  — inserts new price_history entries.
   4. data_sanity.robot — validates all prices just written; logs failures.
+  5. Alert bot    — emails users about price drops / Jan Aushadhi options.
 
 The regression.robot suite is NOT run here — it's a CI gate (run on commit).
 The end_to_end.robot suite is NOT run here — it runs weekly via a separate job.
@@ -136,25 +137,37 @@ def run_daily_pipeline() -> None:
     log.info("=== Daily pipeline starting ===")
 
     # Step 1: smoke gate
-    log.info("Step 1/4: Running smoke suite…")
+    log.info("Step 1/5: Running smoke suite…")
     if not _run_smoke():
         log.error("Smoke suite FAILED — aborting scrape. Check rpa/logs/smoke/.")
         return
 
-    log.info("Step 2/4: Scraping medicine prices…")
+    log.info("Step 2/5: Scraping medicine prices…")
     batch = _scrape_all_medicines()
     if not batch:
         log.error("No prices scraped — aborting pipeline.")
         return
 
-    log.info(f"Step 3/4: Writing {len(batch)} rows to price_history…")
+    log.info(f"Step 3/5: Writing {len(batch)} rows to price_history…")
     _write_price_history(batch)
 
-    log.info("Step 4/4: Running data sanity suite…")
-    if not _run_data_sanity(batch):
+    log.info("Step 4/5: Running data sanity suite…")
+    sanity_ok = _run_data_sanity(batch)
+    if not sanity_ok:
         log.error("Data sanity FAILED — prices written but flagged. Review rpa/logs/data_sanity/.")
     else:
         log.info("=== Daily pipeline completed successfully ===")
+
+    # Step 5: alert users — skipped when sanity failed so bad data never reaches an inbox.
+    if sanity_ok:
+        log.info("Step 5/5: Sending price-drop / Jan Aushadhi alerts…")
+        try:
+            from rpa.alerts.price_alert_bot import run_alert_bot
+            s = run_alert_bot()
+            log.info(f"Alerts: {s['drops']} drop(s), {s['jan_aushadhi']} Jan Aushadhi, "
+                     f"{len(s['emails'])} email(s), {len(s['errors'])} error(s).")
+        except Exception as exc:  # never let alerting kill the scheduler
+            log.error(f"Alert bot failed: {exc}")
 
 
 # --------------------------------------------------------------------------- #
