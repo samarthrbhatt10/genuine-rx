@@ -2,6 +2,7 @@
 Fuzzy matching logic for OCR text against the medicine catalog.
 Uses rapidfuzz for string similarity.
 """
+import re
 from dataclasses import dataclass
 from rapidfuzz import fuzz, process
 
@@ -13,6 +14,36 @@ class ResolveResult:
     confidence: float
     needs_confirmation: bool
     candidates: list[dict] | None = None
+
+
+def _candidate_phrases(raw_text: str) -> list[str]:
+    """
+    Break noisy OCR output into short phrases worth matching: each line, each
+    word, and each pair/triple of adjacent words (for names like "combiflam plus").
+    Matching the whole blob at once lets packaging noise drown out the brand name.
+    """
+    phrases: list[str] = []
+    for line in raw_text.lower().splitlines():
+        words = [w for w in re.findall(r"[a-z]{3,}", line)]
+        if not words:
+            continue
+        phrases.append(" ".join(words))
+        phrases.extend(words)
+        for n in (2, 3):
+            phrases.extend(" ".join(words[i:i + n]) for i in range(len(words) - n + 1))
+    # de-duplicate, keep order
+    return list(dict.fromkeys(phrases)) or [raw_text.lower().strip()]
+
+
+def _best_matches(raw_text: str, choices: list[str]) -> list[tuple[str, float]]:
+    """Best score per catalog key across all phrases; top 3 by score."""
+    best: dict[str, float] = {}
+    for phrase in _candidate_phrases(raw_text):
+        # Short fragments only count if the whole word closely matches (avoid 'cin' -> 'crocin')
+        for key, score, _ in process.extract(phrase, choices, scorer=fuzz.ratio, limit=5):
+            if score > best.get(key, 0.0):
+                best[key] = score
+    return sorted(best.items(), key=lambda kv: kv[1], reverse=True)[:3]
 
 
 def match_medicine_text(raw_text: str, catalog: dict[str, dict]) -> ResolveResult:
@@ -40,12 +71,7 @@ def match_medicine_text(raw_text: str, catalog: dict[str, dict]) -> ResolveResul
     # Extract top 3 matches
     # process.extract returns a list of tuples: (matched_string, score, index)
     # score is out of 100.0
-    matches = process.extract(
-        raw_text.lower(),
-        choices,
-        scorer=fuzz.WRatio,
-        limit=3
-    )
+    matches = [(k, sc, None) for k, sc in _best_matches(raw_text, choices)]
     
     if not matches:
         return ResolveResult(

@@ -124,8 +124,13 @@ async def resolve_image(file: UploadFile = File(...), conn: DbConn = None):
             }
             
         # 3. Call OCR Pipeline
-        result = resolve_prescription_image(temp_path, catalog)
-        
+        try:
+            result = resolve_prescription_image(temp_path, catalog)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Could not read the uploaded image")
+        except RuntimeError as exc:  # Tesseract binary missing
+            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+
         candidates = None
         if result.candidates:
             candidates = [
