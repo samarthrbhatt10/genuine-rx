@@ -1,0 +1,46 @@
+# GenuineRx local stack:  docker compose up --build
+#   frontend  http://localhost:5173
+#   api       http://localhost:8000/docs
+#   postgres  localhost:5433  (user postgres / pass devpass / db genuine_rx)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: genuine_rx
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d genuine_rx"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      GENUINE_RX_DB_URL: postgresql+psycopg://postgres:devpass@db:5432/genuine_rx
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Migrate on start; seed only when the DB is empty so restarts keep data.
+    command: >
+      sh -c "alembic upgrade head &&
+             python -c \"import os,psycopg; c=psycopg.connect(os.environ['GENUINE_RX_DB_URL'].replace('+psycopg','')); import sys; sys.exit(0 if c.execute('select count(*) from medicines').fetchone()[0] else 1)\" || python seed.py;
+             uvicorn api.main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

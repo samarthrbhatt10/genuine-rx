@@ -1,0 +1,11 @@
+node_modules
+frontend/node_modules
+.git
+__pycache__
+*.pyc
+.env
+rpa/reports
+*.html
+!frontend/index.html
+output.xml
+.venv

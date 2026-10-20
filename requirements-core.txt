@@ -24,3 +24,7 @@ redis>=5.0,<6.0
 # --- Notifications / Scheduling ---
 twilio>=9.0,<10.0
 apscheduler>=3.10,<4.0
+
+# --- API runtime (imported by api/main.py and the /resolve-image upload endpoint) ---
+python-dotenv>=1.0
+python-multipart>=0.0.9

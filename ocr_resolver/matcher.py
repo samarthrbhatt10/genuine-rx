@@ -24,7 +24,7 @@ def _candidate_phrases(raw_text: str) -> list[str]:
     """
     phrases: list[str] = []
     for line in raw_text.lower().splitlines():
-        words = [w for w in re.findall(r"[a-z]{3,}", line)]
+        words = [w for w in re.findall(r"[a-z0-9]{2,}", line)]
         if not words:
             continue
         phrases.append(" ".join(words))
