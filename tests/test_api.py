@@ -58,8 +58,14 @@ class TestAPIContract:
         assert "needs_confirmation" in data
 
     def test_get_substitutes(self):
-        # Crocin is ID 16 in seed.py
-        response = client.get("/api/v1/medicines/16/substitutes")
+        # Resolve Crocin to its (environment-specific) medicine_id first.
+        resolve_res = client.post("/api/v1/resolve-medicine", json={
+            "raw_text": "Crocin",
+            "source": "typed"
+        })
+        assert resolve_res.status_code == 200
+        med_id = resolve_res.json()["medicine_id"]
+        response = client.get(f"/api/v1/medicines/{med_id}/substitutes")
         assert response.status_code == 200
         data = response.json()
         assert "source_medicine" in data

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BellRing, Pill, Loader2, TrendingDown, TrendingUp, Minus, X } from 'lucide-react'
+import { BellRing, Pill, Loader2, TrendingDown, TrendingUp, Minus, X, FileDown } from 'lucide-react'
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip,
 } from 'recharts'
@@ -91,6 +91,27 @@ export default function TrackedMedicines({ userId, userName, onToast }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [untrackModal, setUntrackModal] = useState(null)
+  const [pdfLoading, setPdfLoading] = useState(false)
+
+  const downloadPdf = async () => {
+    setPdfLoading(true)
+    try {
+      const res = await fetch(`${API}/users/${userId}/savings-report`)
+      if (!res.ok) throw new Error('Failed to generate report')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `GenuineRX_Savings_${userName.replace(' ', '_')}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+      onToast?.('PDF report downloaded!', 'success')
+    } catch (err) {
+      onToast?.('Could not generate PDF: ' + err.message, 'error')
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   const load = async () => {
     setIsLoading(true)
@@ -156,10 +177,22 @@ export default function TrackedMedicines({ userId, userName, onToast }) {
               )}
             </p>
           </div>
-          <button className="primary-button flex items-center gap-2 self-start">
-            <BellRing className="w-4 h-4" />
-            <span>Alert Settings</span>
-          </button>
+          <div className="flex items-center gap-3 self-start">
+            <button
+              onClick={downloadPdf}
+              disabled={pdfLoading || medicines.length === 0}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-teal-500/40 text-teal-400 hover:bg-teal-500/10 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {pdfLoading
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <FileDown className="w-4 h-4" />}
+              <span>{pdfLoading ? 'Generating...' : 'Download PDF'}</span>
+            </button>
+            <button className="primary-button flex items-center gap-2">
+              <BellRing className="w-4 h-4" />
+              <span>Alert Settings</span>
+            </button>
+          </div>
         </div>
 
         {/* Empty state */}

@@ -7,12 +7,26 @@ with different page-segmentation modes and return all text found. The fuzzy
 matcher picks the best medicine name out of it.
 """
 import logging
+import os
+import shutil
 
 import cv2
 import numpy as np
 import pytesseract
 
 logger = logging.getLogger(__name__)
+
+# Auto-detect Tesseract binary on Windows
+if shutil.which("tesseract") is None:
+    _WIN_PATHS = [
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        os.path.expanduser(r"~\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"),
+    ]
+    for p in _WIN_PATHS:
+        if os.path.isfile(p):
+            pytesseract.pytesseract.tesseract_cmd = p
+            break
 
 # 6 = uniform block, 11 = sparse text (finds brand names scattered on packaging)
 _PSM_MODES = (6, 11)
@@ -37,10 +51,11 @@ def extract_text(img: np.ndarray) -> str:
             try:
                 text = pytesseract.image_to_string(variant, config=f"--oem 3 --psm {psm}")
             except (pytesseract.TesseractNotFoundError, FileNotFoundError) as exc:
-                raise RuntimeError(
-                    "Tesseract OCR is not installed. Install it "
-                    "(macOS: `brew install tesseract`, Ubuntu: `apt install tesseract-ocr`)."
-                ) from exc
+                if os.name == "nt":
+                    msg = "Tesseract OCR is not installed. Please run the installer (or type medicine name directly)."
+                else:
+                    msg = "Tesseract OCR is not installed. Install it (macOS: `brew install tesseract`, Ubuntu: `apt install tesseract-ocr`)."
+                raise RuntimeError(msg) from exc
             if text.strip():
                 chunks.append(text)
     logger.info("OCR extracted %d chars", sum(len(c) for c in chunks))

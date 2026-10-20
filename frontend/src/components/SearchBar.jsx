@@ -69,7 +69,7 @@ export default function SearchBar({ onResolve }) {
       const data = await res.json()
       
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to process image')
+        throw new Error(data.detail || data.message || 'Failed to process image')
       }
       
       setQuery(data.brand_name || 'Found medicine')

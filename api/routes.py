@@ -16,8 +16,10 @@ from matching_engine.types import (
 )
 from ocr_resolver import match_medicine_text
 from ocr_resolver.pipeline import resolve_prescription_image
+from .pdf_report import generate_savings_pdf
 import tempfile
 import os
+from fastapi.responses import FileResponse
 
 from .database import get_db
 from .models import (
@@ -76,7 +78,32 @@ def resolve_medicine(req: ResolveMedicineRequest, conn: DbConn):
             "medicine_id": m["medicine_id"],
             "brand_name": m["brand_name"]
         }
-        
+
+    # Also index salts (canonical names + aliases) so OCR text mentioning a
+    # generic salt resolves to a representative medicine containing that salt.
+    salt_rows = conn.execute(
+        "SELECT salt_id, canonical_name, aliases FROM salts"
+    ).fetchall()
+    rep_rows = conn.execute("""
+        SELECT DISTINCT ON (salt_id) salt_id, medicine_id
+          FROM medicine_salts ORDER BY salt_id, medicine_id
+    """).fetchall()
+    rep_map = {r["salt_id"]: r["medicine_id"] for r in rep_rows}
+    med_name_map = {m["medicine_id"]: m["brand_name"] for m in meds}
+    for s in salt_rows:
+        mid = rep_map.get(s["salt_id"])
+        if mid is None or mid not in med_name_map:
+            continue
+        cname = (s["canonical_name"] or "").strip()
+        if not cname or not any(c.isalpha() for c in cname) or len(cname) < 4:
+            continue
+        entry = {"medicine_id": mid, "brand_name": med_name_map[mid]}
+        catalog[cname.lower()] = entry
+        for alias in (s["aliases"] or []):
+            a = (alias or "").strip()
+            if a and any(c.isalpha() for c in a) and len(a) >= 4:
+                catalog[a.lower()] = entry
+
     # Run rapidfuzz matcher from ocr_resolver
     result = match_medicine_text(req.raw_text, catalog)
     
@@ -122,6 +149,31 @@ async def resolve_image(file: UploadFile = File(...), conn: DbConn = None):
                 "medicine_id": m["medicine_id"],
                 "brand_name": m["brand_name"]
             }
+
+        salt_rows = conn.execute(
+            "SELECT salt_id, canonical_name, aliases FROM salts"
+        ).fetchall()
+        rep_rows = conn.execute("""
+            SELECT DISTINCT ON (salt_id) salt_id, medicine_id
+              FROM medicine_salts ORDER BY salt_id, medicine_id
+        """).fetchall()
+        rep_map = {r["salt_id"]: r["medicine_id"] for r in rep_rows}
+        med_name_map = {m["medicine_id"]: m["brand_name"] for m in meds}
+        for s in salt_rows:
+            mid = rep_map.get(s["salt_id"])
+            if mid is None or mid not in med_name_map:
+                continue
+            cname = (s["canonical_name"] or "").strip()
+            # Only treat salt names that look like real chemical names, not
+            # stray numeric tokens (e.g. "25") that pollute fuzzy matching.
+            if not cname or not any(c.isalpha() for c in cname) or len(cname) < 4:
+                continue
+            entry = {"medicine_id": mid, "brand_name": med_name_map[mid]}
+            catalog[cname.lower()] = entry
+            for alias in (s["aliases"] or []):
+                a = (alias or "").strip()
+                if a and any(c.isalpha() for c in a) and len(a) >= 4:
+                    catalog[a.lower()] = entry
             
         # 3. Call OCR Pipeline
         try:
@@ -373,3 +425,107 @@ def set_user_email(user_id: int, req: UserEmailRequest, conn: DbConn):
     if cur.rowcount == 0:
         raise_not_found(f"User {user_id} not found")
     return {"user_id": user_id, "email": req.email, "message": "Email saved"}
+
+
+@router.get("/users/{user_id}/savings-report")
+def download_savings_report(user_id: int, conn: DbConn):
+    """
+    Generates and returns a downloadable PDF savings report for the user.
+    Shows every tracked medicine, its branded price, the Jan Aushadhi equivalent,
+    and total monthly savings estimate.
+    """
+    user = conn.execute(
+        "SELECT user_id, phone, email FROM users WHERE user_id = %s", (user_id,)
+    ).fetchone()
+    if not user:
+        raise_not_found(f"User {user_id} not found")
+
+    # Fetch tracked medicines with latest price
+    rows = conn.execute("""
+        SELECT t.medicine_id, t.profile_label, m.brand_name,
+               (SELECT price FROM price_history ph
+                 WHERE ph.medicine_id = t.medicine_id
+                 ORDER BY scraped_at DESC LIMIT 1) as latest_price
+          FROM tracked_medicines t
+          JOIN medicines m USING (medicine_id)
+         WHERE t.user_id = %s
+    """, (user_id,)).fetchall()
+
+    # For each medicine, look up the cheapest Jan Aushadhi substitute
+    salt_rows   = conn.execute("SELECT salt_id, canonical_name, aliases FROM salts").fetchall()
+    salt_table  = [SaltEntry(r["salt_id"], r["canonical_name"],
+                             frozenset(a.lower() for a in (r["aliases"] or [])))
+                   for r in salt_rows]
+
+    med_rows = conn.execute("""
+        SELECT m.medicine_id, m.brand_name, m.form, m.manufacturer, m.is_jan_aushadhi,
+               array_agg(ms.salt_id) AS salt_ids, array_agg(ms.strength_mg) AS strengths
+          FROM medicines m JOIN medicine_salts ms USING (medicine_id)
+         GROUP BY m.medicine_id
+    """).fetchall()
+    medicine_table = [
+        MedicineEntry(r["medicine_id"], r["brand_name"], r["form"], r["manufacturer"],
+                      r["is_jan_aushadhi"],
+                      frozenset(SaltRequirement(sid, Decimal(str(smg)))
+                                for sid, smg in zip(r["salt_ids"], r["strengths"])))
+        for r in med_rows
+    ]
+
+    price_rows = conn.execute("""
+        SELECT DISTINCT ON (medicine_id) medicine_id, source, price
+          FROM price_history ORDER BY medicine_id, scraped_at DESC
+    """).fetchall()
+    price_table = [PriceEntry(r["medicine_id"], r["source"], Decimal(str(r["price"])))
+                   for r in price_rows]
+
+    caution_rows = conn.execute("SELECT salt_id, reason FROM caution_list").fetchall()
+    caution_salt_ids = {r["salt_id"]: r["reason"] for r in caution_rows}
+
+    salt_id_to_name = {s.salt_id: s.canonical_name for s in salt_table}
+
+    medicines_for_pdf = []
+    for row in rows:
+        med_id      = row["medicine_id"]
+        brand_price = float(row["latest_price"]) if row["latest_price"] else 0.0
+
+        # find substitutes to get Jan Aushadhi price
+        source_entry = next((m for m in medicine_table if m.medicine_id == med_id), None)
+        ja_price     = None
+        savings_rs   = 0.0
+        savings_pct  = 0.0
+
+        if source_entry:
+            query_salts = [
+                (salt_id_to_name[req.salt_id], req.strength_mg)
+                for req in source_entry.salts
+                if req.salt_id in salt_id_to_name
+            ]
+            subs = find_substitutes(query_salts, salt_table, medicine_table, price_table, caution_salt_ids)
+            ja_sub = next((s for s in subs if s.is_jan_aushadhi), None)
+            if ja_sub:
+                ja_price    = float(ja_sub.price)
+                savings_rs  = max(0.0, brand_price - ja_price)
+                savings_pct = round((savings_rs / brand_price * 100) if brand_price > 0 else 0, 1)
+
+        medicines_for_pdf.append({
+            "medicine_id":   med_id,
+            "brand_name":    row["brand_name"],
+            "profile_label": row["profile_label"],
+            "latest_price":  brand_price,
+            "ja_price":      ja_price,
+            "savings_rupees": savings_rs,
+            "savings_percent": savings_pct,
+        })
+
+    # Generate PDF
+    pdf_path = generate_savings_pdf(
+        medicines=medicines_for_pdf,
+        user_phone=user["phone"],
+    )
+
+    return FileResponse(
+        path=pdf_path,
+        media_type="application/pdf",
+        filename=f"GenuineRX_Savings_Report_User{user_id}.pdf",
+        background=None,
+    )
